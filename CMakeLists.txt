@@ -4,7 +4,7 @@ project(tcp_client_server)
 find_package (Threads)
 
 set(CMAKE_CXX_STANDARD 11)
-
+# set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11")
 
 add_library(${PROJECT_NAME}
         src/tcp_client.cpp
@@ -13,7 +13,7 @@ add_library(${PROJECT_NAME}
         src/pipe_ret_t.cpp
         src/common.cpp)
 
-option(SERVER_EXAMPLE "Build SERVER" ON)
+option(SERVER_EXAMPLE "Build SERVER" OFF)
 
 if(SERVER_EXAMPLE)
 
@@ -27,7 +27,7 @@ if(SERVER_EXAMPLE)
 
 endif()
 
-option(CLIENT_EXAMPLE "Build CLIENT" ON)
+option(CLIENT_EXAMPLE "Build CLIENT" OFF)
 
 if(CLIENT_EXAMPLE)
 
