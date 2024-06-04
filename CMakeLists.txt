@@ -14,6 +14,12 @@ add_library(${PROJECT_NAME} SHARED
         src/pipe_ret_t.cpp
         src/common.cpp)
 
+# Install the library
+install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
+
+# Install the header files
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include)
+
 option(SERVER_EXAMPLE "Build SERVER" OFF)
 
 if(SERVER_EXAMPLE)
