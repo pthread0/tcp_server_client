@@ -11,25 +11,40 @@ TcpClient::~TcpClient() {
     close();
 }
 
-pipe_ret_t TcpClient::connectTo(const std::string & address, int port) {
+pipe_ret_t TcpClient::connectTo(const std::string & address, int port, int srcPort) {
     try {
-        initializeSocket();
-        setAddress(address, port);
+        initializeSocket();  // Ensure _sockfd is properly initialized
+        if (srcPort >= 0 && srcPort <= 65535) {  // Corrected port range check
+            bindToSourcePort(srcPort);  // Bind to source port if specified
+        }
+        setAddress(address, port);  // Set server address
     } catch (const std::runtime_error& error) {
-        return pipe_ret_t::failure(error.what());
+        return pipe_ret_t::failure(error.what());  // Handle initialization errors
     }
 
-    const int connectResult = connect(_sockfd.get() , (struct sockaddr *)&_server , sizeof(_server));
-    const bool connectionFailed = (connectResult == -1);
-    if (connectionFailed) {
-        return pipe_ret_t::failure(strerror(errno));
+    const int connectResult = connect(_sockfd.get(), (struct sockaddr *)&_server, sizeof(_server));
+    if (connectResult == -1) {
+        return pipe_ret_t::failure(strerror(errno));  // Handle connection failure
     }
 
-    startReceivingMessages();
-    _isConnected = true;
-    _isClosed = false;
+    startReceivingMessages();  // Start receiving messages asynchronously if needed
+    _isConnected = true;  // Update connection status
+    _isClosed = false;  // Update closed status
 
-    return pipe_ret_t::success();
+    return pipe_ret_t::success();  // Return success
+}
+
+void TcpClient::bindToSourcePort(int srcPort) {
+    struct sockaddr_in srcAddr;
+    memset(&srcAddr, 0, sizeof(srcAddr));
+    srcAddr.sin_family = AF_INET;
+    srcAddr.sin_port = htons(srcPort);
+    srcAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    if (bind(_sockfd.get(), (struct sockaddr*)&srcAddr, sizeof(srcAddr)) < 0) {
+        std::string errorMessage = "Failed to bind to source port: " + std::to_string(srcPort) + ", " + strerror(errno);
+        throw std::runtime_error(errorMessage);
+    }
 }
 
 void TcpClient::startReceivingMessages() {

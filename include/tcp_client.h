@@ -39,11 +39,11 @@ private:
     void publishServerDisconnected(const pipe_ret_t & ret);
     void receiveTask();
     void terminateReceiveThread();
-
+    void bindToSourcePort(int srcPort);
 public:
     TcpClient();
     ~TcpClient();
-    pipe_ret_t connectTo(const std::string & address, int port);
+    pipe_ret_t connectTo(const std::string & address, int port, int srcPort = -1);
     pipe_ret_t sendMsg(const char * msg, size_t size);
 
     void subscribe(const client_observer_t & observer);
