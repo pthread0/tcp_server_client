@@ -59,6 +59,9 @@ void TcpClient::initializeSocket() {
     if (socketFailed) {
         throw std::runtime_error(strerror(errno));
     }
+    // set socket for reuse (otherwise might have to wait 4 minutes every time socket is closed)
+    const int option = 1;
+    setsockopt(_sockfd.get(), SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 }
 
 void TcpClient::setAddress(const std::string& address, int port) {
